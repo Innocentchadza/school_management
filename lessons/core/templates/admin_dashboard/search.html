@@ -1,0 +1,30 @@
+<h2>Search Results</h2>
+
+<form method="GET" action="{% url 'search' %}">
+    <input type="text" name="q" value="{{ query }}">
+    <button type="submit">Search</button>
+</form>
+
+<h3>Students</h3>
+
+{% if students %}
+<ul>
+    {% for student in students %}
+        <li>{{ student.first_name }} {{ student.last_name }}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No students found.</p>
+{% endif %}
+
+<h3>Examinations</h3>
+
+{% if exams %}
+<ul>
+    {% for exam in exams %}
+        <li>{{ exam.title }}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No examinations found.</p>
+{% endif %}

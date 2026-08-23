@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-primary text-white rounded-top-4">
+                <h3 class="mb-0">Student Results</h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Exam:</strong> {{ exam.title }}</p>
+                        <p class="mb-2"><strong>Student:</strong> {{ student.user.first_name }} {{ student.user.last_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Score:</strong> {{ result.score }}/{{ result.total_possible }}</p>
+                        <p class="mb-2"><strong>Percentage:</strong> <span class="badge bg-success fs-6">{{ percentage }}%</span></p>
+                    </div>
+                </div>
+
+                <div class="alert {% if result.score >= result.total_possible %}alert-success{% else %}alert-danger{% endif %} mb-4">
+                    {% if result.score >= result.total_possible %}
+                        <strong>Congratulations!</strong> You passed the exam.
+                    {% else %}
+                        <strong>Sorry!</strong> You did not pass the exam.
+                    {% endif %}
+                </div>
+
+                <h5 class="mb-3">Breakdown</h5>
+                <div class="list-group">
+                    {% for item in breakdown %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ item.question }}</span>
+                            <span class="badge bg-secondary rounded-pill">{{ item.score }}/{{ item.total_possible }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

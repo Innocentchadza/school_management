@@ -1,0 +1,19 @@
+{% extends 'admin_dashboard/base.html' %}
+{% block content %}
+<h3 class="mb-3">Choices for Question: {{ question.text }}</h3>
+<a href="{% url 'admin_create_choice' question.id %}" class="btn btn-primary mb-3">Create New Choice</a>
+<div class="card p-4">
+<form method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="text">Choice Text:</label>
+        <input type="text" class="form-control" id="text" name="text" required>
+    </div>
+    <div class="form-group">
+        <label for="is_correct">Is Correct:</label>
+        <input type="checkbox" class="form-check-input" id="is_correct" name="is_correct">
+    </div>
+    <button type="submit" class="btn btn-primary">Create Choice</button>
+</form>
+
+{% endblock %}

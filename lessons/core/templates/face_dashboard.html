@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+<style>
+  body { font-family: sans-serif; max-width: 480px; margin: 3rem auto; text-align: center; }
+  .card { border: 1px solid #ddd; border-radius: 8px; padding: 2rem; }
+  .logout { display: inline-block; margin-top: 1.5rem; padding: 8px 16px; text-decoration: none; color: #333; border: 1px solid #ccc; border-radius: 6px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h2>Welcome, {{ user.username }}</h2>
+    <p>You're logged in via face recognition.</p>
+    <a class="logout" href="{% url 'face_logout' %}">Log out</a>
+  </div>
+</body>
+</html>

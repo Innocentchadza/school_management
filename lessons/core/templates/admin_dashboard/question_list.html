@@ -1,0 +1,28 @@
+{% extends 'admin_dashboard/base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Questions for Exam: {{ exam.title }}</h3>
+    <a href="{% url 'admin_create_question' exam.id %}" class="btn btn-primary">Create New Question</a>
+</div>
+{% for question in questions %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ question.text }}</h5>
+            <p class="card-text">Order: {{ question.order }}</p>
+            <a href="{% url 'admin_edit_question' question.id %}" class="btn btn-sm btn-primary">Edit</a>
+            <a href="{% url 'admin_delete_question' question.id %}" class="btn btn-sm btn-danger">Delete</a>
+            <a href="{% url 'admin_create_choice' question.id %}" class="btn btn-sm btn-secondary">Add Choice</a>
+        </div>
+    </div>
+    {% for choice in question.choices.all %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ choice.text }}</h5>
+                <p class="card-text">Is Correct: {{ choice.is_correct }}</p>
+                <a href="{% url 'admin_edit_choice' choice.id %}" class="btn btn-sm btn-primary">Edit</a>
+                <a href="{% url 'admin_delete_choice' choice.id %}" class="btn btn-sm btn-danger">Delete</a>
+            </div>
+        </div>
+    {% endfor %}
+{% endfor %}
+{% endblock %}

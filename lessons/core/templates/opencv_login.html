@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Face Login</title>
+<style>
+  body { font-family: sans-serif; max-width: 480px; margin: 3rem auto; text-align: center; }
+  video, canvas { border-radius: 8px; width: 100%; max-width: 400px; }
+  #status { margin-top: 1rem; font-size: 15px; }
+  button { padding: 10px 20px; margin-top: 1rem; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h2>Face Login</h2>
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <div>
+    <button id="captureBtn" disabled>Waiting for camera...</button>
+  </div>
+  <div id="status"></div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const statusEl = document.getElementById('status');
+    const captureBtn = document.getElementById('captureBtn');
+
+    // 1. Ask for webcam access and stream it into the <video> element
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => { video.srcObject = stream; })
+      .catch(err => { statusEl.textContent = 'Camera error: ' + err.message; });
+
+    // Don't allow a capture until the video actually has real dimensions —
+    // capturing too early gives a 0x0 canvas and an empty/broken image.
+    video.addEventListener('loadedmetadata', () => {
+      captureBtn.disabled = false;
+      captureBtn.textContent = 'Log in with my face';
+    });
+
+    function getCsrfToken() {
+      const match = document.cookie.match(/csrftoken=([^;]+)/);
+      return match ? match[1] : '';
+    }
+
+    document.getElementById('captureBtn').addEventListener('click', () => {
+      if (!video.videoWidth || !video.videoHeight) {
+        statusEl.textContent = 'Camera not ready yet — try again in a moment.';
+        return;
+      }
+
+      // 2. Draw the current video frame onto a hidden canvas
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+
+      // 3. Convert that frame to a base64 JPEG data URL
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+      statusEl.textContent = 'Checking...';
+
+      // 4. POST it to the Django view (this URL resolves to /auth/face-login/submit/)
+      fetch("{% url 'face_login' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrfToken(),
+        },
+        body: JSON.stringify({ image: dataUrl }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            statusEl.textContent = 'Welcome, ' + data.username + '! Redirecting...';
+            window.location.href = data.redirect_url || '/auth/dashboard/';
+          } else if (data.reason === 'no_face') {
+            statusEl.textContent = 'No face detected — line up with the camera and try again.';
+          } else if (data.reason === 'no_match') {
+            statusEl.textContent = 'Not recognized (closest: ' + data.closest_name + ', confidence ' + data.confidence + ').';
+          } else if (data.reason === 'no_matching_account') {
+            statusEl.textContent = 'Face matched, but no account with that username exists.';
+          } else {
+            statusEl.textContent = 'Login failed: ' + data.reason;
+          }
+        })
+        .catch(err => { statusEl.textContent = 'Request failed: ' + err; });
+    });
+  </script>
+</body>
+</html>
